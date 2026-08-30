@@ -1,0 +1,47 @@
+{{!
+    This file is part of Moodle - http://moodle.org/
+
+    Moodle is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    Moodle is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+}}
+{{!
+    @template local_ai_tutor/insights_gaps
+
+    Context variables required for this template:
+    * hasrows - bool.
+    * rows - array of {question, count}.
+}}
+<div class="local-ai-tutor-insights-section">
+    <h3>{{#str}}contentgaps, local_ai_tutor{{/str}}</h3>
+    {{#hasrows}}
+    <table class="generaltable">
+        <thead>
+            <tr>
+                <th>{{#str}}col_question, local_ai_tutor{{/str}}</th>
+                <th>{{#str}}col_count, local_ai_tutor{{/str}}</th>
+            </tr>
+        </thead>
+        <tbody>
+            {{#rows}}
+            <tr>
+                <td>{{question}}</td>
+                <td>{{count}}</td>
+            </tr>
+            {{/rows}}
+        </tbody>
+    </table>
+    {{/hasrows}}
+    {{^hasrows}}
+    <p>{{#str}}nogapsyet, local_ai_tutor{{/str}}</p>
+    {{/hasrows}}
+</div>

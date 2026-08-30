@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<XMLDB PATH="local/ai_tutor/db" VERSION="20260826"
+       COMMENT="XMLDB file for local_ai_tutor"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:noNamespaceSchemaLocation="../../../lib/xmldb/xmldb.xsd">
+  <TABLES>
+    <TABLE NAME="local_ai_tutor_turns" COMMENT="One row per /chat answer returned to a student, for the teacher struggle-pattern and content-gap views">
+      <FIELDS>
+        <FIELD NAME="id"                  TYPE="int"  LENGTH="10"  NOTNULL="true" SEQUENCE="true"/>
+        <FIELD NAME="userid"              TYPE="int"  LENGTH="10"  NOTNULL="true" DEFAULT="0"/>
+        <FIELD NAME="courseid"            TYPE="int"  LENGTH="10"  NOTNULL="true" DEFAULT="0"/>
+        <FIELD NAME="sessionid"           TYPE="char" LENGTH="64"  NOTNULL="true"/>
+        <FIELD NAME="question"            TYPE="text"              NOTNULL="true"/>
+        <FIELD NAME="in_scope"            TYPE="int"  LENGTH="1"   NOTNULL="true" DEFAULT="0"/>
+        <FIELD NAME="stuck"               TYPE="int"  LENGTH="1"   NOTNULL="true" DEFAULT="0"/>
+        <FIELD NAME="primary_citation_id" TYPE="char" LENGTH="40"  NOTNULL="false"/>
+        <FIELD NAME="citation_title"      TYPE="char" LENGTH="255" NOTNULL="false"/>
+        <FIELD NAME="citation_url"        TYPE="char" LENGTH="255" NOTNULL="false"/>
+        <FIELD NAME="timecreated"         TYPE="int"  LENGTH="10"  NOTNULL="true" DEFAULT="0"/>
+      </FIELDS>
+      <KEYS>
+        <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
+      </KEYS>
+      <INDEXES>
+        <INDEX NAME="courseid" UNIQUE="false" FIELDS="courseid"/>
+        <INDEX NAME="userid" UNIQUE="false" FIELDS="userid"/>
+        <INDEX NAME="sessionid" UNIQUE="false" FIELDS="sessionid"/>
+      </INDEXES>
+    </TABLE>
+    <TABLE NAME="local_ai_tutor_content_cache" COMMENT="Pre-harvested, text-extracted course content, rebuilt periodically by the rebuild_content_cache scheduled task">
+      <FIELDS>
+        <FIELD NAME="id"             TYPE="int"  LENGTH="10"  NOTNULL="true" SEQUENCE="true"/>
+        <FIELD NAME="courseid"       TYPE="int"  LENGTH="10"  NOTNULL="true" DEFAULT="0"/>
+        <FIELD NAME="source_type"    TYPE="char" LENGTH="30"  NOTNULL="true"/>
+        <FIELD NAME="source_cmid"    TYPE="int"  LENGTH="10"  NOTNULL="false"/>
+        <FIELD NAME="title"          TYPE="char" LENGTH="255" NOTNULL="true"/>
+        <FIELD NAME="content_text"   TYPE="text"              NOTNULL="true"/>
+        <FIELD NAME="url"            TYPE="char" LENGTH="255" NOTNULL="true"/>
+        <FIELD NAME="timemodified"   TYPE="int"  LENGTH="10"  NOTNULL="true" DEFAULT="0"/>
+      </FIELDS>
+      <KEYS>
+        <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
+      </KEYS>
+      <INDEXES>
+        <INDEX NAME="courseid" UNIQUE="false" FIELDS="courseid"/>
+      </INDEXES>
+    </TABLE>
+  </TABLES>
+</XMLDB>

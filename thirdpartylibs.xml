@@ -1,0 +1,31 @@
+<?xml version="1.0"?>
+<libraries>
+    <library>
+        <location>vendor/smalot/pdfparser</location>
+        <name>Smalot PDF Parser</name>
+        <version>2.12.5</version>
+        <license>LGPL-3.0</license>
+        <licenseversion>3.0</licenseversion>
+    </library>
+    <library>
+        <location>vendor/symfony/polyfill-mbstring</location>
+        <name>Symfony Polyfill Mbstring</name>
+        <version>1.38.1</version>
+        <license>MIT</license>
+        <licenseversion>1.0</licenseversion>
+    </library>
+    <library>
+        <location>vendor/composer</location>
+        <name>Composer autoloader</name>
+        <version>N/A</version>
+        <license>MIT</license>
+        <licenseversion>1.0</licenseversion>
+    </library>
+    <library>
+        <location>vendor/autoload.php</location>
+        <name>Composer autoloader</name>
+        <version>N/A</version>
+        <license>MIT</license>
+        <licenseversion>1.0</licenseversion>
+    </library>
+</libraries>

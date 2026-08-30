@@ -1,0 +1,15 @@
+{
+    "name": "local/ai_tutor",
+    "description": "Moodle local plugin - AI course tutor chatbox",
+    "type": "moodle-plugin",
+    "require": {
+        "smalot/pdfparser": "^2.12"
+    },
+    "config": {
+        "vendor-dir": "vendor",
+        "allow-plugins": {
+            "dealerdirect/phpcodesniffer-composer-installer": true
+        }
+    },
+    "minimum-stability": "dev"
+}
