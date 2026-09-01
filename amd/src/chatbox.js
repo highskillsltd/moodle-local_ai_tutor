@@ -132,24 +132,17 @@ define(['core/str', 'core/templates'], function(Str, Templates) {
         if (!connectsTo || !connectsTo.length) {
             return;
         }
-        var wrap = document.createElement('div');
-        wrap.className = 'local-ai-tutor-connects';
-        var label = document.createElement('div');
-        label.className = 'local-ai-tutor-connects-label';
-        label.textContent = strings.connectsthedots;
-        wrap.appendChild(label);
+        var wrapper = document.createElement('div');
+        bubble.appendChild(wrapper);
 
-        connectsTo.forEach(function(item) {
-            var link = document.createElement('a');
-            link.href = item.url;
-            link.target = '_blank';
-            link.rel = 'noopener';
-            link.textContent = item.title;
-            link.className = 'local-ai-tutor-connects-item';
-            wrap.appendChild(link);
+        Templates.renderForPromise('local_ai_tutor/connects_to', {
+            label: strings.connectsthedots,
+            items: connectsTo,
+        }).then(function(result) {
+            return Templates.replaceNodeContents(wrapper, result.html, result.js);
+        }).catch(function() {
+            // Swallow render failures — the section simply doesn't appear.
         });
-
-        bubble.appendChild(wrap);
     }
 
     /**
@@ -162,22 +155,19 @@ define(['core/str', 'core/templates'], function(Str, Templates) {
         if (!problems || !problems.length) {
             return;
         }
-        var wrap = document.createElement('div');
-        wrap.className = 'local-ai-tutor-practice';
-        var label = document.createElement('div');
-        label.className = 'local-ai-tutor-practice-label';
-        label.textContent = strings.practiceproblems;
-        wrap.appendChild(label);
+        var wrapper = document.createElement('div');
+        bubble.appendChild(wrapper);
 
-        var list = document.createElement('ol');
-        problems.forEach(function(problem) {
-            var li = document.createElement('li');
-            li.textContent = problem;
-            list.appendChild(li);
+        Templates.renderForPromise('local_ai_tutor/practice_problems', {
+            label: strings.practiceproblems,
+            items: problems.map(function(text) {
+                return {text: text};
+            }),
+        }).then(function(result) {
+            return Templates.replaceNodeContents(wrapper, result.html, result.js);
+        }).catch(function() {
+            // Swallow render failures — the section simply doesn't appear.
         });
-        wrap.appendChild(list);
-
-        bubble.appendChild(wrap);
     }
 
     /**
@@ -310,7 +300,7 @@ define(['core/str', 'core/templates'], function(Str, Templates) {
             body: body.toString(),
         }).then(function(response) {
             if (!response.ok) {
-                throw new Error('HTTP ' + response.status);
+                throw new Error((strings.httpstatuslabel || 'HTTP') + ' ' + response.status);
             }
             var reader = response.body.getReader();
             var decoder = new TextDecoder();
@@ -358,6 +348,7 @@ define(['core/str', 'core/templates'], function(Str, Templates) {
                 {key: 'connectsthedots', component: 'local_ai_tutor'},
                 {key: 'practiceproblems', component: 'local_ai_tutor'},
                 {key: 'unknownerror', component: 'local_ai_tutor'},
+                {key: 'httpstatuslabel', component: 'local_ai_tutor'},
             ]).then(function(s) {
                 strings.chatplaceholder = s[0];
                 strings.send = s[1];
@@ -365,6 +356,7 @@ define(['core/str', 'core/templates'], function(Str, Templates) {
                 strings.connectsthedots = s[3];
                 strings.practiceproblems = s[4];
                 strings.unknownerror = s[5];
+                strings.httpstatuslabel = s[6];
 
                 input.setAttribute('placeholder', strings.chatplaceholder);
                 document.getElementById('local-ai-tutor-send').textContent = strings.send;

@@ -44,6 +44,7 @@ class renderer extends \plugin_renderer_base {
             'connectsthedots',
             'practiceproblems',
             'unknownerror',
+            'httpstatuslabel',
         ], 'local_ai_tutor');
 
         $this->page->requires->js_call_amd('local_ai_tutor/chatbox', 'init', [[
@@ -55,9 +56,10 @@ class renderer extends \plugin_renderer_base {
         $position = get_config('local_ai_tutor', 'widget_position') ?: 'bottomright';
 
         return $this->render_from_template('local_ai_tutor/chat_panel', [
-            'title'    => get_string('pluginname', 'local_ai_tutor'),
-            'posclass' => 'local-ai-tutor-pos-' . $position,
-            'greeting' => get_string('greeting', 'local_ai_tutor', $USER->firstname),
+            'title'      => get_string('pluginname', 'local_ai_tutor'),
+            'posclass'   => 'local-ai-tutor-pos-' . $position,
+            'greeting'   => get_string('greeting', 'local_ai_tutor', $USER->firstname),
+            'closelabel' => get_string('closebutton', 'local_ai_tutor'),
         ]);
     }
 }
