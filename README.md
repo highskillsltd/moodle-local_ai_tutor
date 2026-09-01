@@ -1,37 +1,143 @@
-# local_ai_tutor
+# AI Tutor — Moodle Local Plugin
 
-A Moodle `local` plugin: a per-course AI chatbox that answers student questions grounded only in that course's content, with citations, "connects the dots" suggestions, and stuck-student practice problems — plus a teacher-only insights page (struggle patterns, content gaps).
+This plugin is part of the **LearningOps** suite by **Highskills and more**.
+https://www.highskills.co.il/
 
-It talks to a separate backend ("Foundry") over the `/chat` contract documented in [CLAUDE.md](CLAUDE.md). This repo only implements the Moodle side.
+## Overview
 
-## Install
+AI Tutor adds a per-course chat widget that answers student questions **grounded only in
+that course's own content**. Answers stream back in real time with inline citations to the
+exact page, chapter, forum post or file they came from, a "connects the dots" list of
+related material, and — when a student appears to be stuck — a set of practice problems.
 
-1. Copy (or symlink) this repo into your Moodle install, **renaming the folder** to drop the `local_` prefix (Moodle's `local/` plugin-type directory expects that):
-   ```bash
-   cp -r moodle-local_ai_tutor /path/to/moodle/local/ai_tutor
+Teachers additionally get an **Insights** page showing *struggle patterns* (which topics
+students get stuck on, and who) and *content gaps* (questions the course content couldn't
+answer).
+
+## Activation
+
+To get your activation endpoint and API key, please [complete the setup process here](https://www.highskills.co.il/blog/ai/privatetutor-moodle).
+
+## Requirements
+
+- **Moodle 4.4** or later 
+- **PHP 8.x** with the extensions `curl`, `zip`, and `mbstring`.
+- Access to the **AI Private Tutor service** (provided by Highskills and more).
+
+## Installation
+
+1. Copy or clone this repository into your Moodle install, **renaming the folder** to drop
+   the `local_` prefix:
+
    ```
-2. `composer install` inside the deployed plugin folder (vendors the Smalot PDF Parser fallback used by `file_extractor` for PDF text extraction when `pdftotext` isn't available on the server) — already committed under `vendor/` in this repo, so this is only needed if you didn't copy that folder over.
-3. Visit *Site administration → Notifications* to run the install (creates `local_ai_tutor_turns`, `local_ai_tutor_content_cache`, and the "Enable AI Tutor" course custom field).
-4. Build the AMD JS module: from the plugin folder, run `<moodle_root>/node_modules/.bin/grunt amd`. **This step is required, not optional** — Moodle's RequireJS loader only ever looks for `amd/build/<module>.min.js` (see `core_requirejs::find_one_amd_module`); there is no dev-mode fallback that serves `amd/src/*.js` directly. Skipping it produces a `No define call for local_ai_tutor/chatbox` console error. The built `amd/build/chatbox.min.js` is already committed in this repo, so this is only needed after editing `amd/src/chatbox.js`.
-5. Purge caches (*Site administration → Development → Purge caches*) after (re)building the AMD module, since Moodle caches JS by revision.
+   <moodle_root>/local/ai_tutor/
+   ```
 
-## Configure
+2. Log in as a site administrator and go to **Site administration → Notifications** to run
+   the install. 
 
-*Site administration → Plugins → Local plugins → AI Tutor*:
-- **Foundry endpoint URL** — full URL up to and including the tenant and task code, e.g. `https://your-host/api/v1/{tenant-uuid}/private-tutor` (this plugin appends `/chat` itself). Get this and the API key below from the Foundry admin UI after creating the tenant.
-- **API key** — the tenant's Bearer token.
-- **Stream timeout** — how long to wait for a `/chat` response before giving up (default 300s).
+## Configuration
 
-## Enable per course
+Go to **Site administration → Plugins → Local plugins → AI Tutor**.
 
-Open a course's *Settings* page — under the course custom fields section there's an **Enable AI Tutor** checkbox (unchecked by default). Checking it and saving:
-- Makes the chat widget appear on that course's pages (via the `core\hook\output\before_footer_html_generation` hook, `classes/hook_callbacks.php`, gated to course context).
-- Adds that course to the `rebuild_content_cache` scheduled task's harvest list (runs every 30 minutes by default — see *Site administration → Server → Scheduled tasks*). The first chat message on a freshly-enabled course triggers a synchronous harvest if the cache is still empty, so the widget works immediately without waiting for the schedule.
+| Setting | Description |
+|---------|-------------|
+| **Foundry endpoint URL** | Full URL .|
+| **API key (Bearer token)** | The tenant API key provided by Highskills and more. |
+| **Stream timeout (seconds)** | How long to wait for the backend to finish streaming an answer before giving up. Default: 300 s. Minimum: 30 s. |
+| **Widget position** | Which corner of the course page the chat widget docks to: top left, top right, bottom left, or bottom right (default). |
 
-## Architecture notes
+## Enabling the tutor on a course
 
-- **Requires Moodle 4.4+**: the widget hooks into `core\hook\output\before_footer_html_generation` (`db/hooks.php` + `classes/hook_callbacks.php`), which doesn't exist before 4.4 — there's no legacy `before_footer()` fallback in `lib.php` for older versions.
-- **HTTP client**: Moodle's legacy `\curl` wrapper (`classes/api_client.php`), matching this org's sibling plugins (`local_ai_coursecreator`, `local_ai_reportcreator`) rather than `core\http_client` — see the plan history in this repo's conversation record for why.
-- **Course opt-in**: a `customfield_checkbox` field (`classes/course_config.php`, created in `db/install.php`), not a custom form hook — this Moodle version has no generic `course_edit_form` plugin callback.
-- **Content harvesting**: `classes/content_harvester.php` walks course modules via `get_fast_modinfo()`; `classes/task/rebuild_content_cache.php` runs it periodically per enabled course into `local_ai_tutor_content_cache`. See that class's docblock for the documented v1 simplifications (SCORM/H5P intro-only, fixed-question quiz slots only).
-- **No PHPUnit requirement to call this "done"** — verification is manual, against a real Moodle instance and a running Foundry backend (see the plan's verification checklist). A small `tests/` suite exists for the cheaply-testable pieces (`file_extractor`), matching the sibling plugins' convention.
+Open a course's **Settings** page. Under the course custom fields there is an **Enable AI
+Tutor** checkbox (visible to teachers, unchecked by default). Checking it and saving:
+
+- Makes the chat widget appear on that course's pages (for any user with the
+  `local/ai_tutor:use` capability).
+- Adds the course to the **Rebuild AI Tutor course content cache** scheduled task, which
+  re-harvests enabled courses every 30 minutes (**Site administration → Server →
+  Scheduled tasks**).
+- The **first** chat message on a freshly enabled course triggers a one-off synchronous
+  harvest, so the widget works immediately without waiting for the schedule.
+
+## Teacher Insights
+
+Users who can view insights get an **AI Tutor Insights** link in the course administration
+navigation (`/local/ai_tutor/insights.php?courseid=…`). It shows, over a rolling 30-day
+window:
+
+- **Struggle patterns** — topics where students got stuck, with the named students per
+  topic.
+- **Content gaps** — out-of-scope questions the course content couldn't answer, grouped by
+  a simple text normalization.
+
+## Roles & capabilities
+
+| Capability | Default roles (archetypes) | Context | Notes |
+|------------|---------------------------|---------|-------|
+| `local/ai_tutor:use` | Student, Non-editing teacher, Teacher, Manager | Course | Talk to the chat widget. Only takes effect on courses that opted in. |
+| `local/ai_tutor:viewinsights` | Non-editing teacher, Teacher, Manager | Course | View the struggle-pattern / content-gap page. Flagged `RISK_PERSONAL` (exposes student names). |
+
+Adjust access at **Site administration → Users → Permissions → Define roles**.
+
+## Course content sent to the backend
+
+On the first message of a chat session the plugin sends a plain-text snapshot of the
+course. It harvests these module types:
+
+- Pages, labels, book chapters, wiki pages
+- File attachments in **File** and **Folder** resources (text pre-extracted — see below)
+- Forum posts (subject + message)
+- Assignment **descriptions** only
+- Quiz **question text and general feedback** for fixed (non-random) slots only
+- Glossary entries, database (`mod_data`) records, lesson pages
+- SCORM and H5P activities — **intro/description only** in v1
+
+Hard rules:
+
+- **Plain text only** — HTML is stripped before sending.
+- **No student personal data, ever** — no submissions, no grades, no individual quiz
+  attempts.
+
+## Supported file formats
+
+Files in File/Folder resources are extracted to plain text before being sent:
+
+| Format | Notes |
+|--------|-------|
+| `.txt` | Read as-is |
+| `.csv` | Treated as plain text |
+| `.html` / `.htm` | Tags stripped, text extracted |
+| `.docx` | Text extracted from `word/document.xml` |
+| `.pptx` | Text extracted from each `ppt/slides/slideN.xml`, in order |
+| `.pdf` | `pdftotext` (poppler-utils) if available, otherwise the bundled Smalot PDF Parser. Image-only / scanned PDFs produce no text. |
+
+Any other extension is skipped.
+
+## Features
+
+- Real-time **streamed answers** over Server-Sent Events, with a live "thinking" indicator
+- **Inline citations** such as `[C1:high]` / `[C1:medium]` linking back to the source in
+  Moodle, with a model-self-reported confidence hint
+- **Connects the dots** — related course material for the current question
+- **Practice problems** generated automatically when the student appears stuck
+- **Teacher Insights** — struggle patterns and content gaps, built from local data
+- **Configurable widget corner** (site-wide setting)
+- **Hebrew (RTL)** language pack included
+
+
+## Troubleshooting
+
+| Symptom | Likely cause & fix |
+|---------|-------------------|
+| Widget doesn't appear on a course | The course hasn't ticked **Enable AI Tutor**; or the user lacks `local/ai_tutor:use`; or the endpoint URL / API key is blank in settings. |
+| Chat shows "The AI Tutor is not configured" | Foundry endpoint URL or API key missing in plugin settings. |
+| `cURL error 7` — could not connect | Foundry backend is unreachable — check the endpoint URL and network/firewall. |
+| `cURL error 28` — operation timed out | Increase the **Stream timeout** setting; large courses need more processing time. |
+| `HTTP 401 / 403` from the API | API key is wrong or expired — regenerate it in the Foundry admin UI. |
+| Answer only appears all at once at the end | Response buffering in a proxy or web server. Disable gzip/buffering for the SSE response (e.g. `SetEnv no-gzip 1` on Apache; the plugin already sends `X-Accel-Buffering: no` for nginx). |
+| PDF attachment produces no text | The PDF is image-only (scanned). Convert it to a text-based PDF first. |
+
+## License
+
+GNU General Public License v3 or later — see [https://www.gnu.org/licenses/gpl-3.0.html](https://www.gnu.org/licenses/gpl-3.0.html).
