@@ -300,6 +300,7 @@ define(['core/str', 'core/templates'], function(Str, Templates) {
             body: body.toString(),
         }).then(function(response) {
             if (!response.ok) {
+                // eslint-disable-next-line promise/no-return-wrap
                 return Promise.reject(new Error((strings.httpstatuslabel || 'HTTP') + ' ' + response.status));
             }
             var reader = response.body.getReader();
