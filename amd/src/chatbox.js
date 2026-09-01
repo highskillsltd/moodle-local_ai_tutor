@@ -300,7 +300,7 @@ define(['core/str', 'core/templates'], function(Str, Templates) {
             body: body.toString(),
         }).then(function(response) {
             if (!response.ok) {
-                throw new Error((strings.httpstatuslabel || 'HTTP') + ' ' + response.status);
+                return Promise.reject(new Error((strings.httpstatuslabel || 'HTTP') + ' ' + response.status));
             }
             var reader = response.body.getReader();
             var decoder = new TextDecoder();

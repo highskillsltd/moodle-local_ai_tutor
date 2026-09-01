@@ -149,6 +149,9 @@ class content_harvester {
 
     /**
      * mod_page — main content field.
+     *
+     * @param \stdClass[] $items Accumulator array, passed by reference.
+     * @param \cm_info    $cm    The course module being harvested.
      */
     private static function add_page(array &$items, \cm_info $cm): void {
         global $DB;
@@ -161,6 +164,9 @@ class content_harvester {
 
     /**
      * mod_label — body lives in the module's own "intro" field.
+     *
+     * @param \stdClass[] $items Accumulator array, passed by reference.
+     * @param \cm_info    $cm    The course module being harvested.
      */
     private static function add_label(array &$items, \cm_info $cm): void {
         global $DB;
@@ -173,6 +179,9 @@ class content_harvester {
 
     /**
      * mod_book — one item per chapter.
+     *
+     * @param \stdClass[] $items Accumulator array, passed by reference.
+     * @param \cm_info    $cm    The course module being harvested.
      */
     private static function add_book(array &$items, \cm_info $cm): void {
         global $DB;
@@ -187,6 +196,9 @@ class content_harvester {
     /**
      * mod_wiki — one item per page across all of the module's subwikis, using the cached
      * rendered content rather than re-rendering wiki markup ourselves.
+     *
+     * @param \stdClass[] $items Accumulator array, passed by reference.
+     * @param \cm_info    $cm    The course module being harvested.
      */
     private static function add_wiki(array &$items, \cm_info $cm): void {
         global $DB;
@@ -203,6 +215,11 @@ class content_harvester {
 
     /**
      * File-based modules (mod_resource, mod_folder) — extract every stored file via file_extractor.
+     *
+     * @param \stdClass[] $items     Accumulator array, passed by reference.
+     * @param \cm_info    $cm        The course module being harvested.
+     * @param string      $component File storage component (e.g. 'mod_resource').
+     * @param string      $filearea  File storage area name.
      */
     private static function add_files(array &$items, \cm_info $cm, string $component, string $filearea): void {
         $fs = get_file_storage();
@@ -221,6 +238,9 @@ class content_harvester {
     /**
      * mod_forum — one item per post (subject + message), excluding nothing since forum
      * posts are public course discussion, not personal data.
+     *
+     * @param \stdClass[] $items Accumulator array, passed by reference.
+     * @param \cm_info    $cm    The course module being harvested.
      */
     private static function add_forum(array &$items, \cm_info $cm): void {
         global $DB;
@@ -238,6 +258,9 @@ class content_harvester {
 
     /**
      * mod_assign — description ("intro") only, never student submissions.
+     *
+     * @param \stdClass[] $items Accumulator array, passed by reference.
+     * @param \cm_info    $cm    The course module being harvested.
      */
     private static function add_assign(array &$items, \cm_info $cm): void {
         global $DB;
@@ -251,6 +274,9 @@ class content_harvester {
     /**
      * mod_quiz — question text + general feedback for each fixed (non-random) slot,
      * never student attempts/answers/grades.
+     *
+     * @param \stdClass[] $items Accumulator array, passed by reference.
+     * @param \cm_info    $cm    The course module being harvested.
      */
     private static function add_quiz(array &$items, \cm_info $cm): void {
         global $DB;
@@ -287,6 +313,9 @@ class content_harvester {
 
     /**
      * mod_glossary — one item per entry (concept + definition).
+     *
+     * @param \stdClass[] $items Accumulator array, passed by reference.
+     * @param \cm_info    $cm    The course module being harvested.
      */
     private static function add_glossary(array &$items, \cm_info $cm): void {
         global $DB;
@@ -299,6 +328,9 @@ class content_harvester {
 
     /**
      * mod_data — one item per record, concatenating every field's stored content with its field label.
+     *
+     * @param \stdClass[] $items Accumulator array, passed by reference.
+     * @param \cm_info    $cm    The course module being harvested.
      */
     private static function add_data(array &$items, \cm_info $cm): void {
         global $DB;
@@ -323,6 +355,9 @@ class content_harvester {
 
     /**
      * mod_lesson — one item per page.
+     *
+     * @param \stdClass[] $items Accumulator array, passed by reference.
+     * @param \cm_info    $cm    The course module being harvested.
      */
     private static function add_lesson(array &$items, \cm_info $cm): void {
         global $DB;
@@ -335,6 +370,10 @@ class content_harvester {
 
     /**
      * Modules where only the intro/description is extracted (SCORM, H5P) — see class docblock.
+     *
+     * @param \stdClass[] $items Accumulator array, passed by reference.
+     * @param \cm_info    $cm    The course module being harvested.
+     * @param string      $table The activity's main database table (e.g. 'scorm').
      */
     private static function add_intro_only(array &$items, \cm_info $cm, string $table): void {
         global $DB;

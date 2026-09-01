@@ -20,6 +20,14 @@
     Context variables required for this template:
     * hasrows - bool.
     * rows - array of {question, count}.
+
+    Example context (json):
+    {
+        "hasrows": true,
+        "rows": [
+            {"question": "How does the Krebs cycle work?", "count": 4}
+        ]
+    }
 }}
 <div class="local-ai-tutor-insights-section">
     <h3>{{#str}}contentgaps, local_ai_tutor{{/str}}</h3>

@@ -20,6 +20,19 @@
     Context variables required for this template:
     * hasrows - bool.
     * rows - array of {title, url, studentcount, students}.
+
+    Example context (json):
+    {
+        "hasrows": true,
+        "rows": [
+            {
+                "title": "Photosynthesis",
+                "url": "https://moodle.example.com/mod/page/view.php?id=42",
+                "studentcount": 3,
+                "students": "Sam, Alex, Jordan"
+            }
+        ]
+    }
 }}
 <div class="local-ai-tutor-insights-section">
     <h3>{{#str}}strugglepatterns, local_ai_tutor{{/str}}</h3>

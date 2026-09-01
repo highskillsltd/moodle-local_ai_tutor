@@ -25,6 +25,15 @@
     * url - string, link back to the source in Moodle.
     * confidencehigh - bool, true when confidence is "high".
     * confidencelabel - string, human-readable confidence label.
+
+    Example context (json):
+    {
+        "id": "C1",
+        "title": "Introduction to Photosynthesis",
+        "url": "https://moodle.example.com/mod/page/view.php?id=42",
+        "confidencehigh": true,
+        "confidencelabel": "high"
+    }
 }}
 <a href="{{url}}" class="local-ai-tutor-citation {{#confidencehigh}}confidence-high{{/confidencehigh}}{{^confidencehigh}}confidence-medium{{/confidencehigh}}" target="_blank" rel="noopener">
     <span class="citation-id">{{id}}</span>
