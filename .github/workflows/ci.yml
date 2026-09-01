@@ -35,6 +35,11 @@ jobs:
         php: ['8.3', '8.4']
         moodle-branch: ['MOODLE_404_STABLE', 'MOODLE_405_STABLE' ,'MOODLE_500_STABLE' , 'MOODLE_501_STABLE', 'MOODLE_502_STABLE' ]
         database: [pgsql, mariadb]
+        exclude:
+          # PHP 8.4 is only supported on Moodle 5.0+; 4.4/4.5 core emits deprecations
+          # under 8.4 that moodle-plugin-ci treats as a fatal install error.
+          - { php: '8.4', moodle-branch: 'MOODLE_404_STABLE' }
+          - { php: '8.4', moodle-branch: 'MOODLE_405_STABLE' }
 
     steps:
       - name: Check out repository code
